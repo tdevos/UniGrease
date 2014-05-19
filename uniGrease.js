@@ -8,6 +8,18 @@
 
 $(function () {
     
+    function getLastBadge(callback){
+        $.ajax({
+            url: "http://hhrmatriuap005v/uniwebtime/code/prest/ptage_list_hist.asp",
+            type: "post",
+            dataType: "html",
+            success: function (data) {
+                var hour = $(data).find("tr:nth(9) td:nth(2)").html();
+                callback(hour);
+            }
+        });
+    }
+   
     var total = 0;
     var days = 0;
     
@@ -27,9 +39,6 @@ $(function () {
         }
     });
     
-    var rest =  total - (days * toSeconds("08:00"));
-    var restHHMM = toHHMM(rest);
-    
     var $arrivalInput = $("<input>").css({
         width: "38px",
         "font-size" : "11px",
@@ -38,16 +47,26 @@ $(function () {
     // DISPLAY TOTAL
     var $td1 = $("<td>").css({align: "center", "border-bottom": "solid 1px"}).attr("align", "center").html("Total");
     var $td2 = $("<td>").css({align: "center", "border-bottom": "solid 1px"}).html("&nbsp;");
-    var $td3 = $("<td>").css({align: "center", "border-bottom": "solid 1px"}).html("Prestations" + $("<div>").html($arrivalInput).html() + "-");
+    var $td3 = $("<td>").css({align: "center", "border-bottom": "solid 1px"}).html("&nbsp;");
     var $td4 = $("<td>").css({align: "center", "border-bottom": "solid 1px"}).html("&nbsp;");
-    var $td5 = $("<td>").css({align: "center", "border-bottom": "solid 1px"}).attr("align", "center").html(restHHMM);
-    $("body>table>tbody>tr").last().before($("<tr>")
+    
+    getLastBadge(function(lastBadge){
+        var rest =  total - (days * toSeconds("08:00"));
+        var restHHMM = toHHMM(rest);
+        var toGo = toHHMM( toSeconds(lastBadge) + toSeconds("08:30") - rest);
+        var $td5 = $("<td>").css({align: "center", "border-bottom": "solid 1px"}).attr("align", "center").html(
+            "Bonus/Malus : \t " + restHHMM + "<br>" +
+            "Théorical leaving  :\t " + toGo);
+    
+        $("body>table>tbody>tr").last().before($("<tr>")
                                           .append($td1)
                                           .append($td2)
                                           .append($td3)
                                           .append($td4)
                                           .append($td5)
                                           );
+    
+    });
     
     function toSeconds(time) {
         var parts = time.split(':');
@@ -63,7 +82,7 @@ $(function () {
             negative = true;
             sec = sec * -1;
         }
-        
+       
         var sec_num = parseInt(sec, 10);
         var hours = Math.floor(sec_num / 3600);
         var minutes = Math.floor((sec_num - (hours * 3600)) / 60);
@@ -71,7 +90,7 @@ $(function () {
         if (hours < 10) {hours = "0"+hours;}
         if (minutes < 10) {minutes = "0"+minutes;}
         var time = hours + ':' + minutes;
-        
+       
         if (negative)
             time = "-" + time
         return time;
