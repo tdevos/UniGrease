@@ -3,7 +3,7 @@
 // @include     */uniwebtime/code/prest/rep_hist_list.asp*
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js
 // @require     https://raw.githubusercontent.com/nnnick/Chart.js/v0.2.0/Chart.js
-// @version     0.4
+// @version     0.5
 // @grant       none
 // ==/UserScript==
 $(function () {
@@ -119,13 +119,18 @@ $(function () {
     var restHHMM = toHHMM(toSeconds(lastBadge) + toSeconds('08:30')) + ' (' + toHHMM(rest) + ')';
     //        if((toSeconds("08:30") - rest) <= toSeconds("09:30")){
     var toGo = toSeconds(lastBadge) + toSeconds('08:30') - rest
-    if(toGo > (toSeconds(lastBadge) + toSeconds('09:30'))){
-      var toGo = toSeconds(lastBadge) + toSeconds('09:30')
-    }
     
-    countDown(toGo);
+    var toGoForCountDown = (toGo > toSeconds('18:00')) ? (toSeconds('18:00') - toGo) : toGo;
+    /*
+    if(toGo > (toSeconds(lastBadge) + toSeconds('09:30'))){
+      var toGoForCountDown = toSeconds(lastBadge) + toSeconds('09:30')
+    }else{
+      var toGoForCountDown = toSeconds(lastBadge) + toSeconds('09:30')
+    }
+    */
+    countDown(toGoForCountDown);
     setInterval(function () {
-      countDown(toGo);
+      countDown(toGoForCountDown);
     }, 1000);
     
     var hourToGo = (toGo > toSeconds('18:00')) ? '18:00 (' + (toHHMM(toSeconds('18:00') - toGo)) + ')' : toHHMM(toGo);
